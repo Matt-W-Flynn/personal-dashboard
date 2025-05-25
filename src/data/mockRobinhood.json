@@ -1,0 +1,317 @@
+{
+  "portfolio_value": 158924.45,
+  "buying_power": 15432.21,
+  "total_return": 23.45,
+  "today_return": 1.2,
+  "holdings": [
+    {
+      "ticker": "AAPL",
+      "name": "Apple Inc.",
+      "shares": 85,
+      "avg_cost": 145.32,
+      "current_price": 185.32,
+      "total_return": 27.52,
+      "market_value": 15752.20,
+      "sector": "Technology",
+      "price_history": {
+        "1D": [184.25, 184.89, 185.12, 184.95, 185.32],
+        "1W": [182.45, 183.21, 184.15, 184.89, 185.32],
+        "1M": [175.34, 178.45, 180.23, 182.45, 185.32],
+        "3M": [168.45, 171.23, 175.45, 179.89, 182.45, 185.32],
+        "1Y": [155.45, 160.23, 165.45, 170.89, 175.45, 180.23, 185.32]
+      },
+      "analytics": {
+        "volatility": 0.15,
+        "beta": 1.2,
+        "dividend_yield": 0.5,
+        "pe_ratio": 28.5,
+        "52w_high": 187.45,
+        "52w_low": 142.32
+      }
+    },
+    {
+      "ticker": "NVDA",
+      "name": "NVIDIA Corporation",
+      "shares": 42,
+      "avg_cost": 425.67,
+      "current_price": 912.45,
+      "total_return": 114.36,
+      "market_value": 38322.90,
+      "sector": "Technology",
+      "price_history": {
+        "1D": [905.45, 908.23, 910.45, 911.89, 912.45],
+        "1W": [880.45, 890.23, 895.45, 905.89, 912.45],
+        "1M": [820.45, 845.23, 870.45, 890.89, 912.45],
+        "3M": [750.45, 780.23, 820.45, 860.89, 890.45, 912.45],
+        "1Y": [425.67, 520.45, 650.23, 750.45, 820.89, 890.45, 912.45]
+      },
+      "analytics": {
+        "volatility": 0.45,
+        "beta": 1.8,
+        "dividend_yield": 0.02,
+        "pe_ratio": 85.2,
+        "52w_high": 912.45,
+        "52w_low": 420.45
+      }
+    },
+    {
+      "ticker": "TSLA",
+      "name": "Tesla, Inc.",
+      "shares": 150,
+      "avg_cost": 190.44,
+      "current_price": 172.11,
+      "total_return": -9.62,
+      "market_value": 25816.50,
+      "sector": "Automotive",
+      "price_history": {
+        "1D": [170.45, 171.23, 171.89, 172.05, 172.11],
+        "1W": [168.45, 169.23, 170.45, 171.89, 172.11],
+        "1M": [165.45, 167.23, 168.45, 170.89, 172.11],
+        "3M": [180.45, 175.23, 170.45, 168.89, 170.45, 172.11],
+        "1Y": [190.44, 185.45, 180.23, 175.45, 170.89, 171.45, 172.11]
+      },
+      "analytics": {
+        "volatility": 0.65,
+        "beta": 2.1,
+        "dividend_yield": 0,
+        "pe_ratio": 45.8,
+        "52w_high": 195.45,
+        "52w_low": 162.32
+      }
+    },
+    {
+      "ticker": "MSFT",
+      "name": "Microsoft Corporation",
+      "shares": 65,
+      "avg_cost": 234.56,
+      "current_price": 425.22,
+      "total_return": 81.28,
+      "market_value": 27639.30,
+      "sector": "Technology",
+      "price_history": {
+        "1D": [422.45, 423.23, 424.45, 424.89, 425.22],
+        "1W": [415.45, 418.23, 420.45, 423.89, 425.22],
+        "1M": [390.45, 400.23, 410.45, 418.89, 425.22],
+        "3M": [350.45, 370.23, 390.45, 405.89, 415.45, 425.22],
+        "1Y": [234.56, 280.45, 320.23, 360.45, 390.89, 410.45, 425.22]
+      },
+      "analytics": {
+        "volatility": 0.2,
+        "beta": 1.1,
+        "dividend_yield": 0.8,
+        "pe_ratio": 32.5,
+        "52w_high": 425.22,
+        "52w_low": 230.45
+      }
+    },
+    {
+      "ticker": "AMZN",
+      "name": "Amazon.com Inc.",
+      "shares": 92,
+      "avg_cost": 115.23,
+      "current_price": 178.35,
+      "total_return": 54.77,
+      "market_value": 16408.20,
+      "sector": "Consumer Cyclical",
+      "price_history": {
+        "1D": [177.45, 177.89, 178.12, 178.25, 178.35],
+        "1W": [175.45, 176.23, 177.45, 177.89, 178.35],
+        "1M": [165.45, 168.23, 172.45, 175.89, 178.35],
+        "3M": [150.45, 158.23, 165.45, 170.89, 175.45, 178.35],
+        "1Y": [115.23, 130.45, 145.23, 158.45, 165.89, 172.45, 178.35]
+      },
+      "analytics": {
+        "volatility": 0.25,
+        "beta": 1.3,
+        "dividend_yield": 0,
+        "pe_ratio": 65.4,
+        "52w_high": 178.35,
+        "52w_low": 112.45
+      }
+    },
+    {
+      "ticker": "JPM",
+      "name": "JPMorgan Chase & Co.",
+      "shares": 120,
+      "avg_cost": 145.67,
+      "current_price": 182.44,
+      "total_return": 25.24,
+      "market_value": 21892.80,
+      "sector": "Financial Services",
+      "price_history": {
+        "1D": [181.45, 181.89, 182.12, 182.35, 182.44],
+        "1W": [179.45, 180.23, 181.45, 181.89, 182.44],
+        "1M": [172.45, 175.23, 178.45, 180.89, 182.44],
+        "3M": [165.45, 168.23, 172.45, 176.89, 179.45, 182.44],
+        "1Y": [145.67, 155.45, 162.23, 168.45, 173.89, 178.45, 182.44]
+      },
+      "analytics": {
+        "volatility": 0.18,
+        "beta": 1.15,
+        "dividend_yield": 2.4,
+        "pe_ratio": 12.8,
+        "52w_high": 182.44,
+        "52w_low": 140.45
+      }
+    }
+  ],
+  "recent_trades": [
+    {
+      "ticker": "AAPL",
+      "type": "buy",
+      "shares": 15,
+      "price": 185.32,
+      "date": "2024-03-15T14:30:00Z",
+      "total": 2779.80
+    },
+    {
+      "ticker": "NVDA",
+      "type": "sell",
+      "shares": 8,
+      "price": 912.45,
+      "date": "2024-03-14T19:45:00Z",
+      "total": 7299.60
+    },
+    {
+      "ticker": "MSFT",
+      "type": "buy",
+      "shares": 25,
+      "price": 425.22,
+      "date": "2024-03-13T15:20:00Z",
+      "total": 10630.50
+    },
+    {
+      "ticker": "TSLA",
+      "type": "buy",
+      "shares": 50,
+      "price": 190.44,
+      "date": "2023-09-15T14:30:00Z",
+      "total": 9522.00
+    },
+    {
+      "ticker": "AMZN",
+      "type": "buy",
+      "shares": 42,
+      "price": 115.23,
+      "date": "2023-06-22T15:45:00Z",
+      "total": 4839.66
+    },
+    {
+      "ticker": "JPM",
+      "type": "buy",
+      "shares": 70,
+      "price": 145.67,
+      "date": "2023-04-18T13:20:00Z",
+      "total": 10196.90
+    }
+  ],
+  "watchlist": [
+    {
+      "ticker": "GOOGL",
+      "name": "Alphabet Inc.",
+      "price": 147.68,
+      "change_percent": 1.24,
+      "analytics": {
+        "volatility": 0.22,
+        "beta": 1.05,
+        "dividend_yield": 0,
+        "pe_ratio": 25.4,
+        "52w_high": 150.45,
+        "52w_low": 120.45
+      }
+    },
+    {
+      "ticker": "META",
+      "name": "Meta Platforms Inc.",
+      "price": 505.95,
+      "change_percent": 2.31,
+      "analytics": {
+        "volatility": 0.35,
+        "beta": 1.4,
+        "dividend_yield": 0,
+        "pe_ratio": 32.8,
+        "52w_high": 505.95,
+        "52w_low": 280.45
+      }
+    },
+    {
+      "ticker": "AMD",
+      "name": "Advanced Micro Devices, Inc.",
+      "price": 180.49,
+      "change_percent": -0.85,
+      "analytics": {
+        "volatility": 0.48,
+        "beta": 1.75,
+        "dividend_yield": 0,
+        "pe_ratio": 72.5,
+        "52w_high": 185.45,
+        "52w_low": 95.45
+      }
+    }
+  ],
+  "portfolio_history": {
+    "1D": [158424.00, 158623.00, 158890.00, 158924.00, 158750.00, 158924.45],
+    "1W": [155424.00, 156890.00, 157234.00, 157890.00, 158924.45],
+    "1M": [
+      148924.00, 149890.00, 150234.00, 151890.00, 152924.00, 153890.00,
+      154234.00, 154890.00, 155924.00, 156890.00, 157234.00, 157890.00,
+      158234.00, 158590.00, 158924.45
+    ],
+    "3M": [
+      142924.00, 143890.00, 144234.00, 145890.00, 146924.00, 147890.00,
+      148234.00, 149890.00, 150924.00, 151890.00, 152234.00, 153890.00,
+      154924.00, 155890.00, 156234.00, 156890.00, 157924.00, 158924.45
+    ],
+    "1Y": [
+      100000.00, 102500.00, 105000.00, 108750.00, 112500.00, 115000.00,
+      118750.00, 122500.00, 125000.00, 128750.00, 132500.00, 135000.00,
+      138750.00, 142500.00, 145000.00, 148750.00, 152500.00, 155000.00,
+      158750.00, 158924.45
+    ],
+    "ALL": [
+      100000.00, 105000.00, 110000.00, 115000.00, 120000.00, 125000.00,
+      130000.00, 135000.00, 140000.00, 145000.00, 150000.00, 155000.00,
+      158924.45
+    ]
+  },
+  "sector_allocation": [
+    {
+      "sector": "Technology",
+      "percentage": 51.42,
+      "value": 81714.40,
+      "ytd_return": 45.8
+    },
+    {
+      "sector": "Automotive",
+      "percentage": 16.24,
+      "value": 25816.50,
+      "ytd_return": -9.62
+    },
+    {
+      "sector": "Consumer Cyclical",
+      "percentage": 10.32,
+      "value": 16408.20,
+      "ytd_return": 54.77
+    },
+    {
+      "sector": "Financial Services",
+      "percentage": 13.78,
+      "value": 21892.80,
+      "ytd_return": 25.24
+    },
+    {
+      "sector": "Cash",
+      "percentage": 8.24,
+      "value": 15432.21,
+      "ytd_return": 0
+    }
+  ],
+  "risk_metrics": {
+    "portfolio_beta": 1.35,
+    "sharpe_ratio": 1.8,
+    "alpha": 0.15,
+    "r_squared": 0.85,
+    "standard_deviation": 0.28,
+    "max_drawdown": -15.2
+  }
+} 

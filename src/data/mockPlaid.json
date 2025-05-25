@@ -1,0 +1,232 @@
+{
+  "accounts": {
+    "checking": {
+      "name": "Chase Premier Checking",
+      "balance": 2143.67,
+      "account_number_last4": "4567",
+      "monthly_inflow": 8234.56,
+      "monthly_outflow": 6090.89,
+      "balance_history": {
+        "1D": [2100.00, 2150.00, 2200.00, 2175.00, 2143.67],
+        "1W": [2000.00, 2250.00, 2175.00, 2100.00, 2143.67],
+        "1M": [
+          1800.00, 2100.00, 9800.00, 8500.00, 7200.00, 5900.00,
+          4600.00, 3300.00, 2800.00, 2500.00, 2300.00, 2143.67
+        ],
+        "3M": [
+          1500.00, 1800.00, 9500.00, 8200.00, 6900.00, 5600.00,
+          4300.00, 3000.00, 2500.00, 2200.00, 2000.00, 1800.00,
+          2100.00, 9800.00, 8500.00, 7200.00, 5900.00, 4600.00,
+          3300.00, 2800.00, 2500.00, 2300.00, 2143.67
+        ],
+        "1Y": [
+          1200.00, 1500.00, 9200.00, 7900.00, 6600.00, 5300.00,
+          4000.00, 2700.00, 2200.00, 1900.00, 1700.00, 1500.00,
+          1800.00, 9500.00, 8200.00, 6900.00, 5600.00, 4300.00,
+          3000.00, 2500.00, 2200.00, 2000.00, 1800.00, 2100.00,
+          9800.00, 8500.00, 7200.00, 5900.00, 4600.00, 3300.00,
+          2800.00, 2500.00, 2300.00, 2143.67
+        ]
+      }
+    },
+    "savings": {
+      "name": "Chase High-Yield Savings",
+      "balance": 25500.25,
+      "account_number_last4": "8901",
+      "apy": 4.25,
+      "monthly_interest": 90.23,
+      "balance_history": {
+        "1D": [25450.25, 25475.25, 25490.25, 25500.25],
+        "1W": [25200.25, 25300.25, 25400.25, 25500.25],
+        "1M": [
+          23500.25, 23700.25, 23900.25, 24100.25, 24300.25,
+          24500.25, 24700.25, 24900.25, 25100.25, 25300.25,
+          25500.25
+        ],
+        "3M": [
+          20500.25, 21000.25, 21500.25, 22000.25, 22500.25,
+          23000.25, 23500.25, 24000.25, 24500.25, 25000.25,
+          25500.25
+        ],
+        "1Y": [
+          15000.25, 16000.25, 17000.25, 18000.25, 19000.25,
+          20000.25, 21000.25, 22000.25, 23000.25, 24000.25,
+          25000.25, 25500.25
+        ]
+      }
+    },
+    "credit": {
+      "name": "Chase Sapphire Reserve",
+      "balance": -2456.78,
+      "credit_limit": 25000,
+      "available_credit": 22543.22,
+      "payment_due_date": "2024-04-15",
+      "minimum_payment": 35.00,
+      "rewards_points": 54321,
+      "balance_history": {
+        "1D": [-2400.78, -2425.78, -2440.78, -2456.78],
+        "1W": [-2200.78, -2300.78, -2400.78, -2456.78],
+        "1M": [
+          -1500.78, -1700.78, -1900.78, -2100.78, -2300.78,
+          -2456.78
+        ],
+        "3M": [
+          -1000.78, -1200.78, -1400.78, -1600.78, -1800.78,
+          -2000.78, -2200.78, -2456.78
+        ],
+        "1Y": [
+          -500.78, -700.78, -900.78, -1100.78, -1300.78,
+          -1500.78, -1700.78, -1900.78, -2100.78, -2300.78,
+          -2456.78
+        ]
+      }
+    }
+  },
+  "transactions": [
+    {
+      "id": "tx_001",
+      "date": "2024-03-15",
+      "name": "Whole Foods Market",
+      "amount": -89.47,
+      "category": "Groceries",
+      "account": "checking"
+    },
+    {
+      "id": "tx_002",
+      "date": "2024-03-15",
+      "name": "Monthly Salary",
+      "amount": 8234.56,
+      "category": "Income",
+      "account": "checking"
+    },
+    {
+      "id": "tx_003",
+      "date": "2024-03-14",
+      "name": "Spotify Premium",
+      "amount": -9.99,
+      "category": "Entertainment",
+      "account": "credit"
+    },
+    {
+      "id": "tx_004",
+      "date": "2024-03-14",
+      "name": "PG&E",
+      "amount": -142.33,
+      "category": "Utilities",
+      "account": "checking"
+    },
+    {
+      "id": "tx_005",
+      "date": "2024-03-13",
+      "name": "Transfer to Savings",
+      "amount": -1000.00,
+      "category": "Transfer",
+      "account": "checking"
+    },
+    {
+      "id": "tx_006",
+      "date": "2024-03-13",
+      "name": "Uber",
+      "amount": -24.50,
+      "category": "Transportation",
+      "account": "credit"
+    },
+    {
+      "id": "tx_007",
+      "date": "2023-12-15",
+      "name": "Year-End Bonus",
+      "amount": 5000.00,
+      "category": "Income",
+      "account": "checking"
+    },
+    {
+      "id": "tx_008",
+      "date": "2023-09-22",
+      "name": "Flight Tickets",
+      "amount": -850.00,
+      "category": "Travel",
+      "account": "credit"
+    },
+    {
+      "id": "tx_009",
+      "date": "2023-06-30",
+      "name": "Performance Bonus",
+      "amount": 2500.00,
+      "category": "Income",
+      "account": "checking"
+    },
+    {
+      "id": "tx_010",
+      "date": "2023-04-15",
+      "name": "Tax Refund",
+      "amount": 1875.00,
+      "category": "Income",
+      "account": "checking"
+    }
+  ],
+  "monthly_summary": {
+    "income": {
+      "Salary": 8234.56,
+      "Interest": 90.23,
+      "Other": 245.67,
+      "total": 8570.46
+    },
+    "expenses": {
+      "Housing": 2450.00,
+      "Transportation": 345.67,
+      "Food & Dining": 876.54,
+      "Utilities": 234.56,
+      "Entertainment": 156.78,
+      "Shopping": 567.89,
+      "Healthcare": 123.45,
+      "Other": 336.00,
+      "total": 5090.89
+    }
+  },
+  "yearly_summary": {
+    "income": {
+      "Q1": 25703.68,
+      "Q2": 27211.38,
+      "Q3": 24703.68,
+      "Q4": 29711.38,
+      "total": 107330.12
+    },
+    "expenses": {
+      "Q1": 15272.67,
+      "Q2": 14890.45,
+      "Q3": 16453.23,
+      "Q4": 15272.67,
+      "total": 61889.02
+    },
+    "savings": {
+      "Q1": 10431.01,
+      "Q2": 12320.93,
+      "Q3": 8250.45,
+      "Q4": 14438.71,
+      "total": 45441.10
+    }
+  },
+  "upcoming_bills": [
+    {
+      "name": "Rent",
+      "amount": 2450.00,
+      "due_date": "2024-04-01",
+      "recurring": true,
+      "autopay": true
+    },
+    {
+      "name": "Car Insurance",
+      "amount": 145.67,
+      "due_date": "2024-04-05",
+      "recurring": true,
+      "autopay": true
+    },
+    {
+      "name": "Internet",
+      "amount": 79.99,
+      "due_date": "2024-04-08",
+      "recurring": true,
+      "autopay": true
+    }
+  ]
+} 
