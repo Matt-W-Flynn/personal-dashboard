@@ -1,14 +1,16 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
+import { ChevronDownIcon, ChevronRightIcon } from 'lucide-react'
 
 interface NavItem {
   name: string
   href: string
   icon: React.ComponentType<{ className?: string }>
+  subItems?: NavItem[]
 }
 
 // Modern Navigation Icons
@@ -102,7 +104,7 @@ const SettingsIcon = ({ className }: { className?: string }) => (
   </svg>
 )
 
-const navigation: NavItem[] = [
+const navigationData: NavItem[] = [
   {
     name: 'Overview',
     href: '/dashboard',
@@ -112,6 +114,12 @@ const navigation: NavItem[] = [
     name: 'Financial',
     href: '/dashboard/financial',
     icon: ChartIcon,
+    subItems: [
+      { name: 'Summary', href: '/dashboard/financial', icon: MenuIcon },
+      { name: 'Investments', href: '/dashboard/financial/investments', icon: MenuIcon },
+      { name: 'Banking', href: '/dashboard/financial/banking', icon: MenuIcon },
+      { name: 'Research', href: '/dashboard/financial/research', icon: MenuIcon },
+    ]
   },
 ]
 
@@ -137,6 +145,20 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname()
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+  const [openSection, setOpenSection] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (pathname.startsWith('/dashboard/financial')) {
+      setOpenSection('Financial')
+    } else {
+      // Optional: close other sections if a non-financial page is active
+      // setOpenSection(null)
+    }
+  }, [pathname])
+
+  const toggleSection = (sectionName: string) => {
+    setOpenSection(openSection === sectionName ? null : sectionName)
+  }
 
   return (
     <div className="min-h-screen bg-brand-stone font-sans text-brand-text">
@@ -176,27 +198,84 @@ export default function DashboardLayout({
         </div>
 
         <div className="flex-1 space-y-1 px-3 py-4">
-          {navigation.map((item) => {
-            const isActive = pathname === item.href
-            return (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={`flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                  isActive
-                    ? 'bg-brand-green text-brand-background'
-                    : 'text-brand-text hover:bg-brand-stone/20'
-                }`}
-              >
-                <item.icon className="mr-3 h-4 w-4" />
-                <motion.span
-                  animate={{ opacity: isSidebarOpen ? 1 : 0 }}
-                  className="truncate"
+          {navigationData.map((item) => {
+            const isSectionActive = item.href && pathname.startsWith(item.href)
+            const isExactActive = pathname === item.href
+
+            if (item.subItems) {
+              return (
+                <div key={item.name}>
+                  <button
+                    onClick={() => toggleSection(item.name)}
+                    className={`flex w-full items-center rounded-lg px-3 py-2 text-sm font-medium transition-colors justify-between ${
+                      isSectionActive && !item.subItems.some(sub => pathname === sub.href)
+                        ? 'bg-brand-green/10 text-brand-green' 
+                        : 'text-brand-text hover:bg-brand-stone/20'
+                    }`}
+                  >
+                    <div className="flex items-center">
+                      <item.icon className="mr-3 h-4 w-4" />
+                      <motion.span
+                        animate={{ opacity: isSidebarOpen ? 1 : 0 }}
+                        className="truncate"
+                      >
+                        {item.name}
+                      </motion.span>
+                    </div>
+                    {isSidebarOpen && (
+                      openSection === item.name ? <ChevronDownIcon className="h-4 w-4" /> : <ChevronRightIcon className="h-4 w-4" />
+                    )}
+                  </button>
+                  <AnimatePresence>
+                    {openSection === item.name && isSidebarOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="ml-4 mt-1 space-y-1 border-l border-brand-stone/20 pl-3"
+                      >
+                        {item.subItems.map((subItem) => {
+                          const isSubItemActive = pathname === subItem.href
+                          return (
+                            <Link
+                              key={subItem.name}
+                              href={subItem.href}
+                              className={`flex items-center rounded-lg px-3 py-2 text-xs font-medium transition-colors ${
+                                isSubItemActive
+                                  ? 'bg-brand-green text-brand-background'
+                                  : 'text-brand-text hover:bg-brand-stone/20'
+                              }`}
+                            >
+                              <span className="truncate">{subItem.name}</span>
+                            </Link>
+                          )
+                        })}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              )
+            } else {
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                    isExactActive
+                      ? 'bg-brand-green text-brand-background'
+                      : 'text-brand-text hover:bg-brand-stone/20'
+                  }`}
                 >
-                  {item.name}
-                </motion.span>
-              </Link>
-            )
+                  <item.icon className="mr-3 h-4 w-4" />
+                  <motion.span
+                    animate={{ opacity: isSidebarOpen ? 1 : 0 }}
+                    className="truncate"
+                  >
+                    {item.name}
+                  </motion.span>
+                </Link>
+              )
+            }
           })}
         </div>
       </motion.nav>
@@ -210,7 +289,9 @@ export default function DashboardLayout({
         {/* Header */}
         <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-brand-stone/20 bg-brand-background px-4 shadow-sm">
           <h1 className="text-xl font-semibold text-brand-green">
-            {navigation.find((item) => item.href === pathname)?.name || 'Dashboard'}
+            {navigationData.find((item) => item.href === pathname)?.name || 
+             navigationData.flatMap(item => item.subItems || []).find(subItem => subItem.href === pathname)?.name ||
+             'Dashboard'}
           </h1>
           
           <div className="flex items-center space-x-4">

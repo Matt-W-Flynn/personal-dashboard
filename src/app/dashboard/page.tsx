@@ -8,17 +8,18 @@ import HealthMetrics from '@/components/dashboard/HealthMetrics'
 import { getFinancialHealthMetrics } from '@/data/financialMetrics'
 import mockRobinhoodData from '@/data/mockRobinhood.json'
 import mockPlaidData from '@/data/mockPlaid.json'
+import { HomeIcon, CurrencyDollarIcon } from '@heroicons/react/24/outline'
 
 const navigation = [
-  { name: 'Home', href: '/dashboard' },
-  { 
-    name: 'Financial', 
-    href: '/dashboard/financial',
-    dropdownItems: [
+  { name: 'Overview', href: '/dashboard', icon: HomeIcon },
+  {
+    name: 'Financial',
+    icon: CurrencyDollarIcon,
+    subItems: [
       { name: 'Summary', href: '/dashboard/financial' },
       { name: 'Investments', href: '/dashboard/financial/investments' },
       { name: 'Banking', href: '/dashboard/financial/banking' },
-    ]
+    ],
   },
   { 
     name: 'Health', 
@@ -72,7 +73,7 @@ export default function DashboardPage() {
               const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
               return (
                 <div key={item.name} className="relative dropdown-container">
-                  {item.dropdownItems ? (
+                  {item.subItems ? (
                     <button
                       onClick={(e) => {
                         e.stopPropagation()
@@ -98,12 +99,12 @@ export default function DashboardPage() {
                       {item.name}
                     </Link>
                   )}
-                  {item.dropdownItems && openDropdown === item.name && (
+                  {item.subItems && openDropdown === item.name && (
                     <div 
                       className="absolute left-0 mt-1 w-48 rounded-xl shadow-lg bg-white py-2 z-10 border border-brand-stone/10"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      {item.dropdownItems.map((dropdownItem) => (
+                      {item.subItems.map((dropdownItem) => (
                         <Link
                           key={dropdownItem.href}
                           href={dropdownItem.href}

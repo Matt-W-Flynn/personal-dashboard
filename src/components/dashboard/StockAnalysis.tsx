@@ -1,222 +1,326 @@
-import React from 'react'
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-  CartesianGrid
-} from 'recharts'
-import { ArrowUpIcon, ArrowDownIcon } from '@heroicons/react/24/solid'
+  fetchQuote, FinnhubQuote,
+  fetchCompanyProfile, FinnhubCompanyProfile,
+  fetchBasicFinancials, FinnhubBasicFinancials,
+  fetchCompanyNews, FinnhubCompanyNews
+} from '@/lib/finnhub';
+import {
+  fetchPolygonAggregates
+} from '@/lib/polygon';
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
+} from 'recharts';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import Image from 'next/image';
 
 interface StockAnalysisProps {
-  stock: any // Using any for now, will type properly later
-  timeframe?: '1D' | '1W' | '1M' | '3M' | '1Y' | 'ALL'
+  symbol: string | null;
 }
 
-const getXAxisTicks = (timeframe: string, data: any[]) => {
-  if (timeframe === '1D') return data.map((_, i) => i)
-  if (timeframe === '1W') return data.filter((_, i) => i % 1 === 0).map((_, i) => i)
-  if (timeframe === '1M') return data.filter((_, i) => i % 5 === 0).map((_, i) => i)
-  if (timeframe === '3M') return data.filter((_, i) => i % 10 === 0).map((_, i) => i)
-  if (timeframe === '1Y') return data.filter((_, i) => i % 20 === 0).map((_, i) => i)
-  return data.filter((_, i) => i % 30 === 0).map((_, i) => i)
+const formatDateForChart = (timestamp: number): string => {
+  const date = new Date(timestamp);
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+};
+
+interface ChartDataPoint {
+  date: string;
+  close: number;
 }
 
-const StockAnalysis: React.FC<StockAnalysisProps> = ({ 
-  stock,
-  timeframe = '1M'
-}) => {
-  const formatPrice = (price: number) => 
-    new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(price)
+const formatMarketCap = (marketCap: number): string => {
+  if (marketCap >= 1_000_000_000_000) return `${(marketCap / 1_000_000_000_000).toFixed(2)}T`;
+  if (marketCap >= 1_000_000_000) return `${(marketCap / 1_000_000_000).toFixed(2)}B`;
+  if (marketCap >= 1_000_000) return `${(marketCap / 1_000_000).toFixed(2)}M`;
+  return marketCap.toString();
+};
 
-  const priceData = stock.price_history[timeframe].map((price: number, index: number) => ({
-    time: index,
-    price
-  }))
+const formatNewsDate = (timestamp: number): string => {
+  return new Date(timestamp * 1000).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+};
 
-  const xTicks = getXAxisTicks(timeframe, priceData)
+export const StockAnalysis: React.FC<StockAnalysisProps> = ({ symbol }) => {
+  const [stockQuote, setStockQuote] = useState<FinnhubQuote | null>(null);
+  const [companyProfile, setCompanyProfile] = useState<FinnhubCompanyProfile | null>(null);
+  const [stockFinancials, setStockFinancials] = useState<FinnhubBasicFinancials | null>(null);
+  const [companyNews, setCompanyNews] = useState<FinnhubCompanyNews[] | null>([]);
+  
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const priceChange = stock.current_price - stock.avg_cost
-  const priceChangePercent = (priceChange / stock.avg_cost) * 100
+  const [historicalChartData, setHistoricalChartData] = useState<ChartDataPoint[]>([]);
+  const [isLoadingChart, setIsLoadingChart] = useState(false);
+  const [chartError, setChartError] = useState<string | null>(null);
+  const [chartTimeRange, setChartTimeRange] = useState('1Y');
 
+  useEffect(() => {
+    if (symbol) {
+      const fetchData = async () => {
+        setIsLoading(true);
+        setError(null);
+        setHistoricalChartData([]);
+        setChartError(null);
+        setStockQuote(null);
+        setCompanyProfile(null);
+        setStockFinancials(null);
+        setCompanyNews([]);
+
+        console.log(`[StockAnalysis] Fetching data for ${symbol}`);
+        try {
+          const quoteData = await fetchQuote(symbol);
+          setStockQuote(quoteData);
+
+          const profileData = await fetchCompanyProfile(symbol);
+          setCompanyProfile(profileData);
+
+          const financialsData = await fetchBasicFinancials(symbol);
+          setStockFinancials(financialsData);
+          
+          const newsData = await fetchCompanyNews(symbol);
+          setCompanyNews(newsData);
+
+        } catch (err) {
+          console.error(`[StockAnalysis] Error fetching stock data for ${symbol}:`, err);
+          setError('Failed to fetch stock data.');
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      fetchData();
+    } else {
+      setStockQuote(null);
+      setCompanyProfile(null);
+      setStockFinancials(null);
+      setCompanyNews([]);
+      setHistoricalChartData([]);
+      setChartError(null);
+      setIsLoading(false);
+      setError(null);
+    }
+  }, [symbol]);
+
+  useEffect(() => {
+    if (!symbol) {
+      setHistoricalChartData([]);
+      setChartError(null);
+      setIsLoadingChart(false);
+      return;
+    }
+
+    console.log(`[StockAnalysis] Chart effect triggered for ${symbol} (${chartTimeRange}). Setting up debounce.`);
+
+    const handler = setTimeout(() => {
+      const loadChartData = async () => {
+        setIsLoadingChart(true);
+        setChartError(null);
+        setHistoricalChartData([]);
+        console.log(`[StockAnalysis] Debounced: Fetching chart data for ${symbol} (${chartTimeRange})`);
+
+        const toDate = new Date();
+        let fromDate = new Date();
+        let multiplier = 1;
+        let timespan = 'day';
+
+        switch (chartTimeRange) {
+          case '1M': fromDate.setMonth(toDate.getMonth() - 1); break;
+          case '6M': fromDate.setMonth(toDate.getMonth() - 6); break;
+          case 'YTD': fromDate.setMonth(0); fromDate.setDate(1); break;
+          case '5Y': fromDate.setFullYear(toDate.getFullYear() - 5); break;
+          case 'MAX': fromDate.setFullYear(toDate.getFullYear() - 20); break; 
+          case '1Y': 
+          default: fromDate.setFullYear(toDate.getFullYear() - 1); break;
+        }
+
+        const toDateStr = toDate.toISOString().split('T')[0];
+        const fromDateStr = fromDate.toISOString().split('T')[0];
+
+        try {
+          const aggregates = await fetchPolygonAggregates(
+            symbol.toUpperCase(), multiplier, timespan, fromDateStr, toDateStr, { adjusted: true, sort: 'asc' }
+          );
+          const formattedChartData = aggregates.map(agg => ({
+            date: formatDateForChart(agg.t),
+            close: agg.c,
+          }));
+          setHistoricalChartData(formattedChartData);
+          if (formattedChartData.length === 0) {
+            console.log(`[StockAnalysis] No chart data returned for ${symbol} (${chartTimeRange}) from ${fromDateStr} to ${toDateStr}`);
+            setChartError('No historical data found for the selected range.');
+          }
+        } catch (err: any) {
+          console.error(`[StockAnalysis] Failed to load historical chart data for ${symbol} (${chartTimeRange}):`, err.message || err);
+          if (err?.response?.status === 429 || err?.message?.includes('429')) {
+            setChartError('API rate limit reached. Please try again in a moment.');
+          } else {
+            setChartError(err.message || 'Failed to load chart data.');
+          }
+        } finally {
+          setIsLoadingChart(false);
+        }
+      };
+      loadChartData();
+    }, 500);
+
+    return () => {
+      console.log(`[StockAnalysis] Clearing debounce timeout for ${symbol} (${chartTimeRange})`);
+      clearTimeout(handler);
+    };
+  }, [symbol, chartTimeRange]);
+
+  if (!symbol) {
+    return (
+      <Card className="h-full flex items-center justify-center">
+        <CardContent>
+          <p className="text-center text-muted-foreground">No stock selected or symbol provided.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (isLoading) {
+    return (
+        <Card>
+            <CardHeader><Skeleton className="h-8 w-3/4" /></CardHeader>
+            <CardContent className="space-y-4">
+                <Skeleton className="h-32 w-full" />
+                <Skeleton className="h-6 w-1/2" />
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-2/3" />
+                <Skeleton className="h-20 w-full" />
+            </CardContent>
+        </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="h-full flex items-center justify-center">
+        <CardContent>
+          <p className="text-center text-red-500">{error}</p>
+          <p className="text-center text-xs text-muted-foreground">Could not load data for {symbol}.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+  
   return (
     <div className="space-y-6">
-      {/* Stock Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-xl font-bold text-brand-text">{stock.name}</h3>
-          <p className="text-sm text-brand-stone">{stock.ticker}</p>
-        </div>
-        <div className="text-right">
-          <p className="text-2xl font-bold text-brand-text">
-            {formatPrice(stock.current_price)}
-          </p>
-          <div className={`flex items-center justify-end space-x-1 ${
-            priceChange >= 0 ? 'text-brand-green' : 'text-brand-coral'
-          }`}>
-            {priceChange >= 0 ? (
-              <ArrowUpIcon className="h-4 w-4" />
-            ) : (
-              <ArrowDownIcon className="h-4 w-4" />
+      <Card>
+        <CardHeader>
+          <div className="flex items-center space-x-3">
+            {companyProfile?.logo && symbol && (
+              <Link href={`/company/${symbol}`} passHref>
+                <Image src={companyProfile.logo} alt={`${companyProfile.name || symbol} logo`} width={40} height={40} className="rounded-full cursor-pointer border" />
+              </Link>
             )}
-            <span className="font-medium">
-              {priceChange >= 0 ? '+' : ''}
-              {priceChangePercent.toFixed(2)}%
-            </span>
+            <div>
+              {symbol && (
+                <Link href={`/company/${symbol}`} passHref>
+                  <CardTitle className="text-2xl hover:underline cursor-pointer">
+                    {companyProfile?.name || 'Loading name...'} ({symbol})
+                  </CardTitle>
+                </Link>
+              )}
+              {companyProfile?.weburl && (
+                <a href={companyProfile.weburl} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-500 hover:underline">
+                  {companyProfile.weburl.replace(/^https?:\/\//, '')}
+                </a>
+              )}
+            </div>
           </div>
-        </div>
-      </div>
+        </CardHeader>
+        {stockFinancials?.metric && (
+            <CardContent>
+                <h3 className="text-lg font-semibold mb-2 text-gray-700 dark:text-gray-300">Key Metrics</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1 text-sm text-gray-600 dark:text-gray-400">
+                    {stockFinancials.metric.marketCapitalization && <p>Mkt Cap: <span className="font-medium text-gray-800 dark:text-gray-200">{formatMarketCap(stockFinancials.metric.marketCapitalization)}</span></p>}
+                    {stockFinancials.metric.peExclExtraAnnual && <p>P/E: <span className="font-medium text-gray-800 dark:text-gray-200">{stockFinancials.metric.peExclExtraAnnual.toFixed(2)}</span></p>}
+                    {stockFinancials.metric.dividendYieldIndicatedAnnual !== undefined && <p>Div Yield: <span className="font-medium text-gray-800 dark:text-gray-200">{(stockFinancials.metric.dividendYieldIndicatedAnnual * 100).toFixed(2)}%</span></p>}
+                    {stockFinancials.metric['52WeekHigh'] && <p>52W High: <span className="font-medium text-gray-800 dark:text-gray-200">${stockFinancials.metric['52WeekHigh'].toFixed(2)}</span></p>}
+                    {stockFinancials.metric['52WeekLow'] && <p>52W Low: <span className="font-medium text-gray-800 dark:text-gray-200">${stockFinancials.metric['52WeekLow'].toFixed(2)}</span></p>}
+                    {stockFinancials.metric.beta && <p>Beta: <span className="font-medium text-gray-800 dark:text-gray-200">{stockFinancials.metric.beta.toFixed(2)}</span></p>}
+                </div>
+            </CardContent>
+        )}
+      </Card>
 
-      {/* Price Chart */}
-      <div className="h-64 bg-brand-text rounded-2xl p-4 shadow-sm border border-brand-stone/10">
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={priceData} margin={{ left: 30, right: 20, top: 20, bottom: 20 }}>
-            <defs>
-              <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
-                <stop 
-                  offset="5%" 
-                  stopColor={priceChange >= 0 ? '#45836E' : '#FF6B5E'} 
-                  stopOpacity={0.3}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-xl">Price History</CardTitle>
+            <Select value={chartTimeRange} onValueChange={(value) => setChartTimeRange(value)}>
+                <SelectTrigger className="w-[100px]">
+                    <SelectValue placeholder="Range" />
+                </SelectTrigger>
+                <SelectContent>
+                    {['1M', '6M', 'YTD', '1Y', '5Y', 'MAX'].map(range => (
+                        <SelectItem key={range} value={range}>{range}</SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+        </CardHeader>
+        <CardContent className="h-[300px] pt-4">
+          {isLoadingChart && <Skeleton className="h-full w-full" />}
+          {chartError && <p className="text-center text-red-500">{chartError}</p>}
+          {!isLoadingChart && !chartError && historicalChartData.length > 0 && (
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={historicalChartData} margin={{ top: 5, right: 20, left: -20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.3} />
+                <XAxis dataKey="date" tick={{ fontSize: 12 }} />
+                <YAxis tickFormatter={(value) => `$${value.toFixed(0)}`} tick={{ fontSize: 12 }} domain={['dataMin * 0.95', 'dataMax * 1.05']} />
+                <Tooltip 
+                    formatter={(value: number) => [`$${value.toFixed(2)}`, 'Close']}
+                    labelStyle={{ color: '#333' }}
+                    itemStyle={{ color: stockQuote && stockQuote.dp >= 0 ? '#16A34A' : '#DC2626' }} 
                 />
-                <stop 
-                  offset="95%" 
-                  stopColor={priceChange >= 0 ? '#45836E' : '#FF6B5E'} 
-                  stopOpacity={0}
-                />
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#D8D8D0" />
-            <XAxis 
-              dataKey="time" 
-              ticks={xTicks}
-              tick={{ fill: '#F9F9F6', fontSize: 12 }}
-              axisLine={{ stroke: '#D8D8D0' }}
-              tickLine={false}
-              label={{ value: 'Time', position: 'insideBottom', fill: '#F9F9F6', fontSize: 12, offset: -10 }}
-            />
-            <YAxis 
-              domain={['dataMin', 'dataMax']}
-              tick={{ fill: '#F9F9F6', fontSize: 12 }}
-              axisLine={{ stroke: '#D8D8D0' }}
-              tickLine={false}
-              label={{ value: 'Price ($)', angle: -90, position: 'insideLeft', fill: '#F9F9F6', fontSize: 12 }}
-            />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: '#2A2A2A',
-                border: 'none',
-                borderRadius: '0.5rem',
-                color: '#F9F9F6'
-              }}
-              formatter={(value: number) => [formatPrice(value), 'Price']}
-            />
-            <Area
-              type="monotone"
-              dataKey="price"
-              stroke={priceChange >= 0 ? '#45836E' : '#FF6B5E'}
-              fill="url(#colorPrice)"
-            />
-          </AreaChart>
-        </ResponsiveContainer>
-      </div>
+                <Line type="monotone" dataKey="close" stroke={stockQuote && stockQuote.dp >= 0 ? "#16A34A" : "#DC2626"} strokeWidth={2} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          )}
+          {!isLoadingChart && !chartError && historicalChartData.length === 0 && (
+            <p className="text-center text-muted-foreground h-full flex items-center justify-center">No chart data available for selected range.</p>
+          )}
+        </CardContent>
+      </Card>
 
-      {/* Position Details */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-brand-text rounded-2xl p-4 shadow-sm border border-brand-stone/10">
-          <h4 className="text-sm font-medium text-brand-background mb-2">Position</h4>
-          <div className="space-y-2">
-            <div className="flex justify-between">
-              <span className="text-brand-background/70">Shares</span>
-              <span className="text-brand-background font-medium">{stock.shares}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-brand-background/70">Avg Cost</span>
-              <span className="text-brand-background font-medium">
-                {formatPrice(stock.avg_cost)}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-brand-background/70">Market Value</span>
-              <span className="text-brand-background font-medium">
-                {formatPrice(stock.market_value)}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-brand-background/70">Total Return</span>
-              <span className={`font-medium ${
-                stock.total_return >= 0 ? 'text-brand-green' : 'text-brand-coral'
-              }`}>
-                {stock.total_return >= 0 ? '+' : ''}
-                {stock.total_return}%
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Analytics */}
-        <div className="bg-brand-text rounded-2xl p-4 shadow-sm border border-brand-stone/10">
-          <h4 className="text-sm font-medium text-brand-background mb-2">Analytics</h4>
-          <div className="space-y-2">
-            <div className="flex justify-between">
-              <span className="text-brand-background/70">Beta</span>
-              <span className="text-brand-background font-medium">
-                {stock.analytics.beta.toFixed(2)}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-brand-background/70">Volatility</span>
-              <span className="text-brand-background font-medium">
-                {(stock.analytics.volatility * 100).toFixed(1)}%
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-brand-background/70">P/E Ratio</span>
-              <span className="text-brand-background font-medium">
-                {stock.analytics.pe_ratio.toFixed(1)}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-brand-background/70">Dividend Yield</span>
-              <span className="text-brand-background font-medium">
-                {stock.analytics.dividend_yield.toFixed(1)}%
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Price Range */}
-      <div className="bg-brand-text rounded-2xl p-4 shadow-sm border border-brand-stone/10">
-        <h4 className="text-sm font-medium text-brand-background mb-4">52-Week Range</h4>
-        <div className="relative h-2 bg-brand-background/20 rounded-full">
-          <div
-            className="absolute h-4 w-4 -mt-1 rounded-full bg-brand-background"
-            style={{
-              left: `${((stock.current_price - stock.analytics['52w_low']) /
-                (stock.analytics['52w_high'] - stock.analytics['52w_low'])) *
-                100}%`,
-              transform: 'translateX(-50%)'
-            }}
-          />
-        </div>
-        <div className="flex justify-between mt-2">
-          <span className="text-sm text-brand-background/70">
-            {formatPrice(stock.analytics['52w_low'])}
-          </span>
-          <span className="text-sm text-brand-background/70">
-            {formatPrice(stock.analytics['52w_high'])}
-          </span>
-        </div>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent News</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {isLoading && !companyNews?.length && (
+            <>
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+            </>
+          )}
+          {companyNews && companyNews.length > 0 ? (
+            companyNews.slice(0, 5).map((newsItem) => (
+              <div key={newsItem.id} className="p-3 border rounded-lg shadow-sm hover:shadow-md transition-shadow bg-card">
+                <a href={newsItem.url} target="_blank" rel="noopener noreferrer">
+                  <h3 className="text-md font-semibold hover:text-primary mb-1">{newsItem.headline}</h3>
+                </a>
+                <p className="text-xs text-muted-foreground mb-1">
+                  {newsItem.source} - {formatNewsDate(newsItem.datetime)}
+                </p>
+                <p className="text-sm text-card-foreground/90 line-clamp-2">{newsItem.summary}</p>
+                 {newsItem.related && <p className="text-xs text-muted-foreground mt-1">Related: {newsItem.related}</p>}
+              </div>
+            ))
+          ) : (
+            !isLoading && <p className="text-sm text-muted-foreground">No news articles found for {symbol}.</p>
+          )}
+        </CardContent>
+      </Card>
     </div>
-  )
-}
-
-export default StockAnalysis 
+  );
+};
